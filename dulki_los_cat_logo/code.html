@@ -209,15 +209,30 @@
 </style>
 <script>
     const savedProducts = JSON.parse(localStorage.getItem('dulki-productos-v1') || '{}');
+    const priceOverrides = {
+        'CHEESECAKE': '$2.00',
+        'CHOCO BOMBAS': '$1.35',
+        'COPA DE CHOCOLATE': '$2.10',
+        'FRESAS PERSONALIZADAS': '$1.00',
+        'GALLETAS OREO CUBIERTAS': '$1.35',
+        'PANCAKES PERSONALIZADOS': '$2.50',
+        'PASTELES COMPLETOS': '$8.00',
+        'PASTELES INDIVIDUALES': '$1.85',
+        'TRUFAS OREO': '$1.30',
+        'VASO DE FRESAS CON CREMA': '$1.85'
+    };
     document.querySelectorAll('[onclick^="openProductModal"]').forEach(card => {
         const title = card.querySelector('h3')?.textContent.trim();
         const product = Object.values(savedProducts).find(item => item.name === title) || savedProducts[title?.toLowerCase()];
-        if (!product) return;
+        const priceOverride = priceOverrides[title];
+        if (!product && !priceOverride) return;
         const image = card.querySelector('img');
         const price = card.querySelector('p');
         if (image && product.image) image.src = product.image;
-        if (price && product.price) price.textContent = product.price;
-        card.setAttribute('onclick', `openProductModal('${title}', '${product.price}', '${product.image}')`);
+        if (price && (product?.price || priceOverride)) price.textContent = product?.price || priceOverride;
+        const modalPrice = product?.price || priceOverride;
+        const modalImage = product?.image || image?.src || '';
+        card.setAttribute('onclick', `openProductModal('${title}', '${modalPrice}', '${modalImage}')`);
     });
 
     let currentQty = 1;
